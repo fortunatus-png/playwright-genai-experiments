@@ -69,7 +69,7 @@ test.describe('login', () => {
     await page.locator('[data-test="username"]').fill('performance_glitch_user');
     await page.locator('[data-test="password"]').fill('secret_sauce');
     await page.locator('[data-test="login-button"]').click();
-    await expect(page).toHaveURL('/inventory.html');
+    await expect(page).toHaveURL('/inventory.html', { timeout: 10000 });
     await expect(page.locator('[data-test="title"]')).toHaveText('Products');
   });
 
@@ -80,4 +80,4 @@ test.describe('login', () => {
     await expect(page).toHaveURL('/inventory.html');
     await expect(page.locator('[data-test="title"]')).toHaveText('Products');
   });
-})
+});
