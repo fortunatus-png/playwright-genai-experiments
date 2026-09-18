@@ -19,4 +19,10 @@ test.describe('login', () => {
     await expect(page).toHaveURL('/');
     await expect(page.locator('[data-test="error"]')).toHaveText('Epic sadface: Sorry, this user has been locked out.');
   });
+
+  test('TC-LOGIN-003 – Login with empty username and password', async ({ page }) => {
+    await page.locator('[data-test="login-button"]').click();
+    await expect(page).toHaveURL('/');
+    await expect(page.locator('[data-test="error"]')).toHaveText('Epic sadface: Username is required');
+  });
 })
