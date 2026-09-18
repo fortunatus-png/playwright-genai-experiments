@@ -11,4 +11,12 @@ test.describe('login', () => {
     await page.locator('[data-test="login-button"]').click();
     await expect(page).toHaveURL('/inventory.html');
   });
+
+  test('TC-LOGIN-002 – Locked out user cannot log in', async ({ page }) => {
+    await page.locator('[data-test="username"]').fill('locked_out_user');
+    await page.locator('[data-test="password"]').fill('secret_sauce');
+    await page.locator('[data-test="login-button"]').click();
+    await expect(page).toHaveURL('/');
+    await expect(page.locator('[data-test="error"]')).toHaveText('Epic sadface: Sorry, this user has been locked out.');
+  });
 })
