@@ -4,7 +4,7 @@ This document contains the test cases for the login functionality of SauceDemo.
 
 **Application:** https://www.saucedemo.com/  
 **Feature:** Login  
-**Test Type:** UI / Functional / Negative / Edge Case / Security  
+**Test Type:** UI / Functional / Negative / Edge Case   
 **Automation:** Playwright
 
 
