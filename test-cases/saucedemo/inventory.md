@@ -58,26 +58,26 @@ This document contains the test cases for the inventory functionality of SauceDe
 - Username: `standard_user`
 - Password: `secret_sauce`
 - Sort options:
-  - `Name (A to Z)`
   - `Name (Z to A)`
+  - `Name (A to Z)`
 
 ### Steps
 
 1. Log in with `standard_user`.
 2. Open the product sorting dropdown.
-3. Select **Name (A to Z)**.
+3. Select **Name (Z to A)**.
 4. Verify the order of the displayed products.
 5. Open the product sorting dropdown again.
-6. Select **Name (Z to A)**.
+6. Select **Name (A to Z)**.
 7. Verify the order of the displayed products.
 
 ### Expected Result
 
 - The sorting dropdown is displayed.
-- **Name (A to Z)** can be selected.
-- Products are sorted alphabetically in ascending order by product name.
 - **Name (Z to A)** can be selected.
 - Products are sorted alphabetically in descending order by product name.
+- **Name (A to Z)** can be selected.
+- Products are sorted alphabetically in ascending order by product name.
 - The products are displayed in the correct order for both sorting options.
 
 
