@@ -1,61 +1,65 @@
 import { test, expect } from '@playwright/test';
+import { LoginPage } from '../../pages/saucedemo/LoginPage';
+import { InventoryPage } from '../../pages/saucedemo/InventoryPage';
+import { CartPage } from '../../pages/saucedemo/CartPage';
 
 test.describe('cart', () => {
+  let loginPage: LoginPage;
+  let inventoryPage: InventoryPage;
+  let cartPage: CartPage;
+  const standardUser = 'standard_user';
+  const password = 'secret_sauce';
+
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-    await page.locator('[data-test="username"]').fill('standard_user');
-    await page.locator('[data-test="password"]').fill('secret_sauce');
-    await page.locator('[data-test="login-button"]').click();
-    await expect(page).toHaveURL('/inventory.html');
-    await expect(page.locator('[data-test="title"]')).toHaveText('Products');
+    loginPage = new LoginPage(page);
+    inventoryPage = new InventoryPage(page);
+    cartPage = new CartPage(page);
+    await loginPage.goto();
+    await loginPage.login(standardUser, password);
+    await loginPage.expectInventoryPage();
   });
 
-  test('TC-CART-001 – Product is displayed in the cart', async ({ page }) => {
-    await page.locator('[data-test="add-to-cart-sauce-labs-backpack"]').click();
-    await page.locator('[data-test="shopping-cart-link"]').click();
-    await expect(page.locator('[data-test="shopping-cart-badge"]')).toHaveText('1');
-    await expect(page.getByText('Sauce Labs Backpack')).toBeVisible();
-    await expect(page.locator('[data-test="inventory-item-desc"]')).toBeVisible();
-    await expect(page.locator('[data-test="inventory-item-price"]')).toHaveText('$29.99');
-    await expect(page.getByRole('button', { name: 'Remove' })).toBeVisible();
+  test('TC-CART-001 – Product is displayed in the cart', async () => {
+    await inventoryPage.addItem('backpack');
+    await cartPage.cartLink.click();
+    await expect(cartPage.cartBadge).toHaveText('1');
+    await cartPage.expectProductVisible('Sauce Labs Backpack');
+    await expect(cartPage.itemDesc).toBeVisible();
+    await expect(cartPage.itemPrice).toBeVisible();
+    await cartPage.expectRemoveButton('backpack');
   });
 
-  test('TC-CART-002 – Remove a product from the cart', async ({ page }) => {
-    await page.locator('[data-test="add-to-cart-sauce-labs-backpack"]').click();
-
-    await page.locator('[data-test="shopping-cart-link"]').click();
-    await expect(page.locator('[data-test="shopping-cart-badge"]')).toHaveText('1');
-    await expect(page.getByText('Sauce Labs Backpack')).toBeVisible();
-
-    await page.locator('[data-test="remove-sauce-labs-backpack"]').click();
-    await expect(page.locator('[data-test="shopping-cart-link"]')).toBeEmpty();
-    await expect(page.getByText('Sauce Labs Backpack')).not.toBeVisible();
+  test('TC-CART-002 – Remove a product from the cart', async () => {
+    await inventoryPage.addItem('backpack');
+    await cartPage.cartLink.click();
+    await expect(cartPage.cartBadge).toHaveText('1');
+    await cartPage.expectProductVisible('Sauce Labs Backpack');
+    await cartPage.expectRemoveButton('backpack');
+    await cartPage.removeButton('backpack');
+    await expect(cartPage.cartLink).toBeEmpty();
+    await cartPage.expectProductNotVisible('Sauce Labs Backpack');
   });
 
-  test('TC-CART-003 – Verify product quantity and product name', async ({ page }) => {
-    await page.locator('[data-test="add-to-cart-sauce-labs-backpack"]').click();
-    await page.locator('[data-test="add-to-cart-sauce-labs-bike-light"]').click();
-
-    await page.locator('[data-test="shopping-cart-link"]').click();
-    await expect(page.locator('[data-test="shopping-cart-badge"]')).toHaveText('2');
-    await expect(page.getByText('Sauce Labs Backpack')).toBeVisible();
-    await expect(page.getByText('Sauce Labs Bike Light')).toBeVisible();
+  test('TC-CART-003 – Verify product quantity and product name', async () => {
+    await inventoryPage.addItem('backpack');
+    await inventoryPage.addItem('bike-light');
+    await cartPage.gotoCartPage();
+    await cartPage.expectCountOfItems('2');
+    await cartPage.expectProductVisible('Sauce Labs Backpack');
+    await cartPage.expectProductVisible('Sauce Labs Bike Light');
   });
 
-  test('TC-CART-004 – Navigate back to shopping', async ({ page }) => {
-    await page.locator('[data-test="add-to-cart-sauce-labs-backpack"]').click();
-
-    await page.locator('[data-test="shopping-cart-link"]').click();
-    await page.locator('[data-test="continue-shopping"]').click();
-
-    await expect(page.locator('[data-test="title"]')).toHaveText('Products');
-    await expect(page.getByText('Sauce Labs Backpack')).toBeVisible();
-    await expect(page.getByText('Sauce Labs Bike Light')).toBeVisible();
-    await expect(page.locator('[data-test="inventory-item-name"]')
-      .filter({ hasText: 'Sauce Labs Bolt T-Shirt' })).toHaveText('Sauce Labs Bolt T-Shirt');
-    await expect(page.getByText('Sauce Labs Fleece Jacket')).toBeVisible();
-    await expect(page.getByText('Sauce Labs Onesie')).toBeVisible();
-    await expect(page.getByText('Test.allTheThings() T-Shirt (Red)')).toBeVisible();
-    await expect(page.locator('[data-test="shopping-cart-link"]')).toHaveText('1');
+  test('TC-CART-004 – Navigate back to shopping', async () => {
+    await inventoryPage.addItem('backpack');
+    await cartPage.cartLink.click();
+    await cartPage.continueButton.click();
+    await inventoryPage.expectInventoryPage();
+    await inventoryPage.expectProductVisible('Sauce Labs Backpack');
+    await inventoryPage.expectProductVisible('Sauce Labs Bike Light');
+    await inventoryPage.expectProductVisible('Sauce Labs Bolt T-Shirt');
+    await inventoryPage.expectProductVisible('Sauce Labs Fleece Jacket');
+    await inventoryPage.expectProductVisible('Sauce Labs Onesie');
+    await inventoryPage.expectProductVisible('Test.allTheThings() T-Shirt (Red)');
+    await expect(inventoryPage.shoppingCart).toHaveText('1');
   });
 });

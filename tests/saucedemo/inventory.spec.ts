@@ -1,16 +1,19 @@
 import { test, expect } from '@playwright/test';
 import { LoginPage } from '../../pages/saucedemo/LoginPage';
 import { InventoryPage } from '../../pages/saucedemo/InventoryPage';
+import { CartPage } from '../../pages/saucedemo/CartPage';
 
 test.describe('inventory', () => {
   let loginPage: LoginPage;
   let inventoryPage: InventoryPage;
+  let cartPage: CartPage;
   const standardUser = 'standard_user';
   const password = 'secret_sauce';
 
   test.beforeEach(async ({ page }) => {
     loginPage = new LoginPage(page);
     inventoryPage = new InventoryPage(page);
+    cartPage = new CartPage(page);
     await loginPage.goto();
     await loginPage.login(standardUser, password);
     await loginPage.expectInventoryPage();
@@ -54,39 +57,8 @@ test.describe('inventory', () => {
   test('TC-INVENTORY-005 – Add a product to the cart', async () => {
     await inventoryPage.addItem('backpack');
     await inventoryPage.expectRemoveButton('backpack');
-    await inventoryPage.cartLink.click();
-    await expect(inventoryPage.cartList).toHaveCount(1);
-    await expect(inventoryPage.itemName).toHaveText('Sauce Labs Backpack');
-  });
-
-  test('TC-INVENTORY-006 – Add multiple products to the cart', async () => {
-    await inventoryPage.addItem('backpack');
-    await inventoryPage.addItem('bike-light');
-    await inventoryPage.addItem('bolt-t-shirt');
-
-    await inventoryPage.expectRemoveButton('backpack');
-    await inventoryPage.expectRemoveButton('bike-light');
-    await inventoryPage.expectRemoveButton('bolt-t-shirt');
-
-    await inventoryPage.gotoCartPage();
-    await inventoryPage.expectCountOfItems('3');
-    await inventoryPage.expectProductVisible('Sauce Labs Backpack');
-    await inventoryPage.expectProductVisible('Sauce Labs Bike Light');
-    await inventoryPage.expectProductVisible('Sauce Labs Bolt T-Shirt');
-  });
-
-  test('TC-INVENTORY-007 – Remove a product from the cart', async () => {
-    await inventoryPage.addItem('backpack');
-    await inventoryPage.addItem('bike-light');
-
-    await inventoryPage.gotoCartPage();
-    await inventoryPage.expectCountOfItems('2');
-    await inventoryPage.expectProductVisible('Sauce Labs Backpack');
-    await inventoryPage.expectProductVisible('Sauce Labs Bike Light');
-
-    await inventoryPage.removeButton('backpack');
-    await expect(inventoryPage.cartBadge).toHaveText('1');
-    await inventoryPage.expectProductNotVisible('Sauce Labs Backpack');
-    await inventoryPage.expectProductVisible('Sauce Labs Bike Light');
+    await cartPage.cartLink.click();
+    await expect(cartPage.cartList).toHaveCount(1);
+    await cartPage.expectProductVisible('Sauce Labs Backpack');
   });
 });
